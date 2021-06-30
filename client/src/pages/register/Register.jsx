@@ -9,7 +9,7 @@ const Register = () => {
 		<form onSubmit={handleSubmit}>
 			<Field id="email">Email</Field>
 			<Field id="username">Username</Field>
-			<Field id="username" type="password">
+			<Field id="password" type="password">
 				Password
 			</Field>
 			<Field id="dob" type="date">
@@ -28,6 +28,7 @@ const Register = () => {
 			<span>
 				Already have an account? <a href="#">Login</a>
 			</span>
+			<button type="submit">Register</button>
 		</form>
 		// TODO: Add alternative login methods
 		//    Google
