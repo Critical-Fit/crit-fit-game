@@ -3,7 +3,7 @@ import { useState } from 'react';
 import './prototype.css';
 import Busted from '../../assets/img/ohYeah/broken.jpg';
 import Anger from '../../assets/img/enemy/angybear.png';
-import Enemy from '../../assets/img/enemy/bb.png';
+import Enemy from '../../assets/img/enemy/bear.png';
 
 // States
 const Normal = ({ running, breakCount, onHit, onAnger, startEncounter }) => {
