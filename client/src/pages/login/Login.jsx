@@ -19,6 +19,7 @@ const Login = () => {
 			</span>
 			<button type="submit">Log In</button>
 			{/* Other login methods: Google, Twitch, Facebook */}
+			{/* Another test comment */}
 		</form>
 	);
 };
