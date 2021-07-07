@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import './prototype.css';
 import Busted from '../../assets/img/ohYeah/broken.jpg';
@@ -6,7 +6,14 @@ import Anger from '../../assets/img/enemy/angybear.png';
 import Enemy from '../../assets/img/enemy/bear.png';
 
 // States
-const Normal = ({ running, breakCount, onHit, onAnger, startEncounter }) => {
+const Normal = ({
+	running,
+	time,
+	breakCount,
+	onHit,
+	onAnger,
+	startEncounter,
+}) => {
 	return (
 		<div className="prototype">
 			<div>
@@ -20,7 +27,7 @@ const Normal = ({ running, breakCount, onHit, onAnger, startEncounter }) => {
 				<div className="square">{breakCount}</div>
 			</div>
 
-			<span>10:00</span>
+			<span>{time}</span>
 			{running ? (
 				<button className="btn" onClick={onAnger}>
 					Poke the bear
@@ -47,7 +54,6 @@ const Broken = ({ reset }) => {
 };
 
 const Attack = ({ reset }) => {
-	console.log(`RAWR! I'm ATTACKING`);
 	return (
 		<div className="prototype">
 			<img src={Anger} alt="" />
@@ -67,8 +73,26 @@ const Prototype = () => {
 	const [breakCount, setBreakCount] = useState(DEFAULT_SHIELD);
 	// const [breakIncrement, setBreakIncrement] = useState(0);
 
+	const DEFAULT_TIME = 10;
+	const [seconds, setSeconds] = useState(DEFAULT_TIME);
+
+	useEffect(() => {
+		let interval;
+		if (broken || attacking) {
+			clearInterval(interval);
+		} else if (running && seconds > 0) {
+			interval = setInterval(() => {
+				console.log(`tick: ${seconds}`);
+				setSeconds(seconds - 1);
+			}, 1000);
+		}
+
+		return () => clearInterval(interval);
+	}, [running, seconds, broken, attacking]);
+
 	const onHit = () => {
 		console.log('Argh! I got hit!');
+		console.log(`${running} ${seconds}`);
 		const newBreak = breakCount - 1;
 
 		if (newBreak <= 0) setBroken(true);
@@ -88,6 +112,12 @@ const Prototype = () => {
 		setAttacking(false);
 	};
 
+	const toMMSS = (seconds) => {
+		const mm = (~~(seconds / 60)).toString().padStart(2, '0');
+		const ss = (seconds % 60).toString().padStart(2, '0');
+		return `${mm}:${ss}`;
+	};
+
 	return (
 		<>
 			{broken ? (
@@ -96,6 +126,7 @@ const Prototype = () => {
 				<Attack reset={reset} />
 			) : (
 				<Normal
+					time={toMMSS(seconds)}
 					running={running}
 					breakCount={breakCount}
 					onHit={onHit}
