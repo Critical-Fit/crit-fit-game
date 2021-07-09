@@ -42,21 +42,10 @@ const Normal = ({
 	);
 };
 
-const Broken = ({ reset }) => {
+const State = ({ reset, image }) => {
 	return (
 		<div className="prototype">
-			<img src={Busted} alt="" />
-			<button className="btn" onClick={reset}>
-				HIT THE BUTTON!
-			</button>
-		</div>
-	);
-};
-
-const Attack = ({ reset }) => {
-	return (
-		<div className="prototype">
-			<img src={Anger} alt="" />
+			<img src={image} alt="" />
 			<button className="btn" onClick={reset}>
 				HIT THE BUTTON!
 			</button>
@@ -65,6 +54,8 @@ const Attack = ({ reset }) => {
 };
 
 const Prototype = () => {
+	const ATTACK_TIME = 3;
+	const WORKOUT_TIME = 10;
 	const DEFAULT_SHIELD = 3;
 
 	const [attacking, setAttacking] = useState(false);
@@ -73,35 +64,66 @@ const Prototype = () => {
 	const [breakCount, setBreakCount] = useState(DEFAULT_SHIELD);
 	// const [breakIncrement, setBreakIncrement] = useState(0);
 
-	const DEFAULT_TIME = 10;
-	const [seconds, setSeconds] = useState(DEFAULT_TIME);
+	const [seconds, setSeconds] = useState({
+		attack: ATTACK_TIME,
+		workout: WORKOUT_TIME,
+	});
+
+	// const [attackSeconds, setAttackSeconds] = useState(ATTACK_TIME);
+	// const [workoutSeconds, setWorkoutSeconds] = useState(WORKOUT_TIME);
 
 	useEffect(() => {
-		let interval;
+		let workoutInterval;
+		let attackInterval;
 		if (broken || attacking) {
-			clearInterval(interval);
-		} else if (running && seconds > 0) {
-			interval = setInterval(() => {
-				console.log(`tick: ${seconds}`);
-				setSeconds(seconds - 1);
+			clearInterval(attackInterval);
+			clearInterval(workoutInterval);
+		} else if (running && seconds.workout > 0) {
+			workoutInterval = setInterval(() => {
+				console.log(
+					`global_tick: ${seconds.workout}\nattack_tick: ${seconds.attack}`
+				);
+
+				// setWorkoutSeconds(workoutSeconds - 1);
+				// setAttackSeconds(attackSeconds - 1);
+				setSeconds({
+					attack: seconds.attack - 1,
+					workout: seconds.workout - 1,
+				});
+
+				if (seconds.attack <= 0) return onAnger();
 			}, 1000);
 		}
 
-		return () => clearInterval(interval);
-	}, [running, seconds, broken, attacking]);
+		return () => {
+			clearInterval(workoutInterval);
+			clearInterval(attackInterval);
+		};
+	}, [running, seconds.workout, broken, attacking]);
 
 	const onHit = () => {
 		console.log('Argh! I got hit!');
-		console.log(`${running} ${seconds}`);
+		console.log(`${running} ${seconds.workout}`);
 		const newBreak = breakCount - 1;
 
-		if (newBreak <= 0) setBroken(true);
+		if (newBreak <= 0) onBreak();
 
 		setBreakCount(Math.max(newBreak, 0));
 	};
 	const onAnger = () => {
 		console.log(`You done fucked up now A-A-RON`);
+		setSeconds({
+			...seconds,
+			attack: ATTACK_TIME,
+		});
 		setAttacking(true);
+	};
+	const onBreak = () => {
+		setSeconds({
+			...seconds,
+			attack: ATTACK_TIME,
+		});
+		setBroken(true);
 	};
 	const startEncounter = () => {
 		setRunning(true);
@@ -121,12 +143,12 @@ const Prototype = () => {
 	return (
 		<>
 			{broken ? (
-				<Broken reset={reset} />
+				<State image={Busted} reset={reset} />
 			) : attacking ? (
-				<Attack reset={reset} />
+				<State image={Anger} reset={reset} />
 			) : (
 				<Normal
-					time={toMMSS(seconds)}
+					time={toMMSS(seconds.workout)}
 					running={running}
 					breakCount={breakCount}
 					onHit={onHit}
