@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 
+import ProgressBar from '../../components/progress/ProgressBar';
+
 import './prototype.css';
-import Busted from '../../assets/img/ohYeah/broken.jpg';
+import Broken from '../../assets/img/ohYeah/broken.jpg';
 import Anger from '../../assets/img/enemy/angybear.png';
 import Enemy from '../../assets/img/enemy/bear.png';
 
@@ -43,10 +45,34 @@ const Normal = ({
 };
 
 const State = ({ reset, image }) => {
+	const STATE_TIME = 20;
+	const [time, setTime] = useState(STATE_TIME);
+
+	useEffect(() => {
+		let stateInterval;
+		if (time > -1) {
+			stateInterval = setInterval(() => {
+				setTime(time - 1);
+				console.log(`state_tick: ${time}`);
+			}, 1000);
+		} else {
+			reset(false);
+		}
+
+		return () => {
+			clearInterval(stateInterval);
+		};
+	}, [time]);
+
 	return (
 		<div className="prototype">
 			<img src={image} alt="" />
-			<button className="btn" onClick={reset}>
+			<ProgressBar
+				completed={100 - (time / STATE_TIME) * 100}
+				color="green"
+				backgroundColor="red"
+			/>
+			<button className="btn" onClick={() => reset(true)}>
 				HIT THE BUTTON!
 			</button>
 		</div>
@@ -69,9 +95,6 @@ const Prototype = () => {
 		workout: WORKOUT_TIME,
 	});
 
-	// const [attackSeconds, setAttackSeconds] = useState(ATTACK_TIME);
-	// const [workoutSeconds, setWorkoutSeconds] = useState(WORKOUT_TIME);
-
 	useEffect(() => {
 		let workoutInterval;
 		let attackInterval;
@@ -84,8 +107,6 @@ const Prototype = () => {
 					`global_tick: ${seconds.workout}\nattack_tick: ${seconds.attack}`
 				);
 
-				// setWorkoutSeconds(workoutSeconds - 1);
-				// setAttackSeconds(attackSeconds - 1);
 				setSeconds({
 					attack: seconds.attack - 1,
 					workout: seconds.workout - 1,
@@ -128,10 +149,24 @@ const Prototype = () => {
 	const startEncounter = () => {
 		setRunning(true);
 	};
-	const reset = () => {
+	const resetShield = () => {
 		setBreakCount(DEFAULT_SHIELD);
+	};
+	const resetBroken = (success) => {
+		resetShield();
 		setBroken(false);
+		let msg = success
+			? `Argh! The double damage stings!`
+			: `Missed me! Ha Ha!`;
+		console.log(msg);
+	};
+	const resetAttack = (success) => {
+		resetShield();
 		setAttacking(false);
+		let msg = success
+			? `How dare you block my attack!`
+			: `Ha Ha! What a weakling!`;
+		console.log(msg);
 	};
 
 	const toMMSS = (seconds) => {
@@ -143,9 +178,9 @@ const Prototype = () => {
 	return (
 		<>
 			{broken ? (
-				<State image={Busted} reset={reset} />
+				<State image={Broken} reset={resetBroken} />
 			) : attacking ? (
-				<State image={Anger} reset={reset} />
+				<State image={Anger} reset={resetAttack} />
 			) : (
 				<Normal
 					time={toMMSS(seconds.workout)}
