@@ -68,8 +68,7 @@ const State = ({ reset, image }) => {
 		<div className="prototype">
 			<img src={image} alt="" />
 			<ProgressBar
-				// completed={100 - (time / STATE_TIME) * 100}
-				completed={50}
+				completed={100 - (time / STATE_TIME) * 100}
 				fillColor={`hsl(37, 100%, 100%)`}
 				backgroundColor={`hsl(37, 100%, 12%)`}
 				borderColor={`hsl(37, 100%, 45%)`}
