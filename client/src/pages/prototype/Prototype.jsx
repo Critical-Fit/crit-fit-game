@@ -68,9 +68,11 @@ const State = ({ reset, image }) => {
 		<div className="prototype">
 			<img src={image} alt="" />
 			<ProgressBar
-				completed={100 - (time / STATE_TIME) * 100}
-				color="green"
-				backgroundColor="red"
+				// completed={100 - (time / STATE_TIME) * 100}
+				completed={50}
+				fillColor={`hsl(37, 100%, 100%)`}
+				backgroundColor={`hsl(37, 100%, 12%)`}
+				borderColor={`hsl(37, 100%, 45%)`}
 			/>
 			<button className="btn" onClick={() => reset(true)}>
 				HIT THE BUTTON!
