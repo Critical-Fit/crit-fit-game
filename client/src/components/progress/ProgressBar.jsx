@@ -6,10 +6,6 @@ const ProgressBar = ({
 	borderColor,
 	completed,
 }) => {
-	const container = {
-		backgroundColor: backgroundColor,
-	};
-
 	const bar = {
 		height: 20,
 		width: `100%`,
@@ -17,7 +13,7 @@ const ProgressBar = ({
 		borderRadius: 5,
 		border: `1px solid ${borderColor}`,
 		boxShadow: `0 0 10px ${borderColor}`,
-		margin: 5,
+		margin: `5px 0px`,
 	};
 
 	const fill = {

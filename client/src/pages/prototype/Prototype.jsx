@@ -8,14 +8,17 @@ import Anger from '../../assets/img/enemy/angybear.png';
 import Enemy from '../../assets/img/enemy/bear.png';
 
 // States
-const Normal = ({
-	running,
-	time,
-	breakCount,
-	onHit,
-	onAnger,
-	startEncounter,
-}) => {
+const Normal = ({ running, time, breakCount, onHit, startEncounter }) => {
+	const startButton = () => {
+		if (!running) {
+			return (
+				<button className="btn" onClick={startEncounter}>
+					Begin Encounter
+				</button>
+			);
+		}
+	};
+
 	return (
 		<div className="prototype">
 			<div>
@@ -30,15 +33,7 @@ const Normal = ({
 			</div>
 
 			<span>{time}</span>
-			{running ? (
-				<button className="btn" onClick={onAnger}>
-					Poke the bear
-				</button>
-			) : (
-				<button className="btn" onClick={startEncounter}>
-					Begin Encounter
-				</button>
-			)}
+			{startButton()}
 			<span>These are your workouts!</span>
 		</div>
 	);
@@ -62,14 +57,14 @@ const State = ({ reset, image }) => {
 		return () => {
 			clearInterval(stateInterval);
 		};
-	}, [time]);
+	}, [time, reset]);
 
 	return (
 		<div className="prototype">
 			<img src={image} alt="" />
 			<ProgressBar
 				completed={100 - (time / STATE_TIME) * 100}
-				fillColor={`hsl(37, 100%, 100%)`}
+				fillColor={`hsl(37, 100%, 95%)`}
 				backgroundColor={`hsl(37, 100%, 12%)`}
 				borderColor={`hsl(37, 100%, 45%)`}
 			/>
@@ -96,33 +91,6 @@ const Prototype = () => {
 		workout: WORKOUT_TIME,
 	});
 
-	useEffect(() => {
-		let workoutInterval;
-		let attackInterval;
-		if (broken || attacking) {
-			clearInterval(attackInterval);
-			clearInterval(workoutInterval);
-		} else if (running && seconds.workout > 0) {
-			workoutInterval = setInterval(() => {
-				console.log(
-					`global_tick: ${seconds.workout}\nattack_tick: ${seconds.attack}`
-				);
-
-				setSeconds({
-					attack: seconds.attack - 1,
-					workout: seconds.workout - 1,
-				});
-
-				if (seconds.attack <= 0) return onAnger();
-			}, 1000);
-		}
-
-		return () => {
-			clearInterval(workoutInterval);
-			clearInterval(attackInterval);
-		};
-	}, [running, seconds.workout, broken, attacking]);
-
 	const onHit = () => {
 		console.log('Argh! I got hit!');
 		console.log(`${running} ${seconds.workout}`);
@@ -132,14 +100,7 @@ const Prototype = () => {
 
 		setBreakCount(Math.max(newBreak, 0));
 	};
-	const onAnger = () => {
-		console.log(`You done fucked up now A-A-RON`);
-		setSeconds({
-			...seconds,
-			attack: ATTACK_TIME,
-		});
-		setAttacking(true);
-	};
+
 	const onBreak = () => {
 		setSeconds({
 			...seconds,
@@ -176,6 +137,42 @@ const Prototype = () => {
 		return `${mm}:${ss}`;
 	};
 
+	useEffect(() => {
+		const onAnger = () => {
+			console.log(`You done fucked up now A-A-RON`);
+			setSeconds({
+				...seconds,
+				attack: ATTACK_TIME,
+			});
+			setAttacking(true);
+		};
+
+		let workoutInterval;
+		let attackInterval;
+		if (broken || attacking) {
+			clearInterval(attackInterval);
+			clearInterval(workoutInterval);
+		} else if (running && seconds.workout > 0) {
+			workoutInterval = setInterval(() => {
+				console.log(
+					`global_tick: ${seconds.workout}\nattack_tick: ${seconds.attack}`
+				);
+
+				setSeconds({
+					attack: seconds.attack - 1,
+					workout: seconds.workout - 1,
+				});
+
+				if (seconds.attack <= 0) return onAnger();
+			}, 1000);
+		}
+
+		return () => {
+			clearInterval(workoutInterval);
+			clearInterval(attackInterval);
+		};
+	}, [running, seconds, broken, attacking]);
+
 	return (
 		<>
 			{broken ? (
@@ -188,7 +185,7 @@ const Prototype = () => {
 					running={running}
 					breakCount={breakCount}
 					onHit={onHit}
-					onAnger={onAnger}
+					// onAnger={onAnger}
 					startEncounter={startEncounter}
 				/>
 			)}
